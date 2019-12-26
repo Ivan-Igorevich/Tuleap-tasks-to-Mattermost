@@ -12,6 +12,12 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+// TODO При создании нового таска: Пользователь <имя пользователя>  создал новую задачу <ссылка>.
+// TODO При добавлении комментария к таску: Пользователь <имя пользователя>  оставил в задаче <ссылка>  новый комментарий <текст комментария>.
+// TODO При изменении статуса таска: Пользователь <имя пользователя> изменил статус в задаче <ссылка>  со  <статус> на <статус>.
+// TODO При назначении таска на пользователя: Пользователь <имя пользователя> назначил <имя пользователя> на задачу <ссылка>
+// TODO При изменении описания задачи: Пользователь <имя пользователя> изменил в задаче <ссылка> описание <новое описание задачи>
+// TODO Добавление/удаление файла к задаче: Пользователь <имя пользователя> добавил/удалил в задаче <ссылка> файл <название файла>
 
 public class Server {
 
@@ -75,8 +81,6 @@ public class Server {
         answer.append(String.format(" In '[%s](http://sv-noda.risde.ru:8585/plugins/tracker/?aid=%s)'",
                 ((Map) values.get(TITLE)).get("value"),
                 ((Map) values.get(ARTIFACT_ID)).get("value")));
-        answer.append(String.format(" of type: %s",
-                (((Map) ((JSONArray) ((Map) values.get(TYPE)).get("values")).get(0)).get("label"))));
         answer.append(String.format("\nWith a comment:\n'%s'",
                 ((Map) currentArtifact.get(LAST_COMMENT)).get("body")));
 
