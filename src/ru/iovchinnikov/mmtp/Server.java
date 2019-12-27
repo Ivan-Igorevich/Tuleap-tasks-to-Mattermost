@@ -3,7 +3,6 @@ package ru.iovchinnikov.mmtp;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -11,7 +10,7 @@ import org.json.simple.parser.ParseException;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
+
 // TODO При создании нового таска: Пользователь <имя пользователя>  создал новую задачу <ссылка>.
 // TODO При добавлении комментария к таску: Пользователь <имя пользователя>  оставил в задаче <ссылка>  новый комментарий <текст комментария>.
 // TODO При изменении статуса таска: Пользователь <имя пользователя> изменил статус в задаче <ссылка>  со  <статус> на <статус>.
@@ -24,24 +23,20 @@ import java.util.Map;
 // TODO Добавлен комментарий: "<текст>".
 public class Server {
 
-    private static final String HOST = "http://1.0.0.137:8088/hooks/et9og89o93f9truwybccumyrkc"; // test channel endpoint
-//    private static final String HOST = "http://1.0.0.137:8088/hooks/ojxdgbsxajbcigxs1b3abpzdmh";
-    private static final int PORT = 12345;
-    private static final String ENDPOINT = "/post";
-//    private static final String ENDPOINT = "/cmec";
-
-
+    private static Settings appSettings;
 
     static class HandlerImpl implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
-            InputStream is = httpExchange.getRequestBody();
-            InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
-            BufferedReader rq = new BufferedReader(isr);
-            String str = URLDecoder.decode(rq.readLine(), "UTF-8");
+            String mattermostEndpoint = appSettings.readStringSetting("host");
+            String tuleapEncoding = appSettings.readStringSetting("encoding");
 
+            InputStream is = httpExchange.getRequestBody();
+            InputStreamReader isr = new InputStreamReader(is, tuleapEncoding);
+            BufferedReader rq = new BufferedReader(isr);
+            String str = URLDecoder.decode(rq.readLine(), tuleapEncoding);
             try {
-                sendJSON(HOST, generateAnswer(str.substring(8)));
+                sendJSON(mattermostEndpoint, generateAnswer(str.substring(8)));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -51,6 +46,7 @@ public class Server {
     private static String generateAnswer(String str) throws ParseException {
         JSONObject out = new JSONObject();
         JSONObject json = (JSONObject) new JSONParser().parse(str);
+        String name = appSettings.readStringSetting("botName");
 
         String result = new PropertyBuilder(json)
                 .newLine().appendUser()
@@ -58,7 +54,7 @@ public class Server {
                 .appendArtifactId()
                 .getResult();
 
-        out.put("username", "Tuleap");
+        out.put("username", name);
         out.put("text", result);
         return out.toString();
     }
@@ -81,10 +77,13 @@ public class Server {
     }
 
     public static void main(String[] args) {
+        appSettings = new Settings("properties.json");
+        int port = appSettings.readLongSetting("port").intValue();
+        String endpoint = appSettings.readStringSetting("endpoint");
 
         try {
-            HttpServer srv = HttpServer.create(new InetSocketAddress(PORT), 0);
-            srv.createContext(ENDPOINT, new HandlerImpl());
+            HttpServer srv = HttpServer.create(new InetSocketAddress(port), 0);
+            srv.createContext(endpoint, new HandlerImpl());
             srv.setExecutor(null);
             srv.start();
         } catch (IOException e) {
