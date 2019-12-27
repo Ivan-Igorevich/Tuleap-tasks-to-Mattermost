@@ -15,6 +15,7 @@ public class PropertyBuilder {
         prev = (JSONObject) json.get(PropertyWorker.PREVIOUS_VERSION);
         System.out.println(json);
     }
+
     PropertyBuilder newLine() {
         sb.append("\n");
         return this;
@@ -31,16 +32,28 @@ public class PropertyBuilder {
                 PropertyWorker.getChangesByName(curr)));
         return this;
     }
+
     PropertyBuilder appendAction() {
         sb.append(PropertyWorker.getAction(json));
+        this.appendCustom("d ");
         return this;
     }
 
-    PropertyBuilder appendArtifactId() {
+    PropertyBuilder appendArtifactRef() {
         sb.append(String.format("artifact: '[%s](http://sv-noda.risde.ru:8585/plugins/tracker/?aid=%s)' ",
                 PropertyWorker.getArtifactTitle(curr),
                 PropertyWorker.getArtifactId(curr)));
-        System.out.println(sb.toString());
+        return this;
+    }
+
+    PropertyBuilder appendDetailsIfChanged() {
+        boolean isChange = PropertyWorker.isUpdDetails(curr, prev);
+        if (isChange) {
+            boolean isNewDetails = "".equals(PropertyWorker.getDetails(prev));
+            sb.append(String.format("%s details: '%s'",
+                    ((isNewDetails) ? "added" : "updated"),
+                    PropertyWorker.getDetails(curr)));
+        }
         return this;
     }
 

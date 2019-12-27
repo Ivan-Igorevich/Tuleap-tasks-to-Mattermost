@@ -57,7 +57,7 @@ public class PropertyWorker {
     }
 
     static boolean isUpdDetails(JSONObject curr, JSONObject prev) {
-        return getDetails(curr).equals(getDetails(prev));
+        return !getDetails(curr).equals(getDetails(prev));
     }
 
 }

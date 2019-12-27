@@ -11,7 +11,6 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 
-// TODO При создании нового таска: Пользователь <имя пользователя>  создал новую задачу <ссылка>.
 // TODO При добавлении комментария к таску: Пользователь <имя пользователя>  оставил в задаче <ссылка>  новый комментарий <текст комментария>.
 // TODO При изменении статуса таска: Пользователь <имя пользователя> изменил статус в задаче <ссылка>  со  <статус> на <статус>.
 // TODO При назначении таска на пользователя: Пользователь <имя пользователя> назначил <имя пользователя> на задачу <ссылка>
@@ -50,8 +49,8 @@ public class Server {
 
         String result = new PropertyBuilder(json)
                 .newLine().appendUser()
-                .appendAction().appendCustom("d ")
-                .appendArtifactId()
+                .appendAction().appendArtifactRef()
+                .newLine().appendDetailsIfChanged()
                 .getResult();
 
         out.put("username", name);
