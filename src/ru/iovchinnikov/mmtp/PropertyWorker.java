@@ -60,4 +60,12 @@ public class PropertyWorker {
         return !getDetails(curr).equals(getDetails(prev));
     }
 
+    static String getComment(JSONObject json) {
+        return (String) ((Map) json.get(LAST_COMMENT)).get("body");
+    }
+
+    static boolean isUpdComment(JSONObject curr, JSONObject prev) {
+        return !getComment(curr).equals(getComment(prev));
+    }
+
 }

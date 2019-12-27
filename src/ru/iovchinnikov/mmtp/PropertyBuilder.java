@@ -1,6 +1,7 @@
 package ru.iovchinnikov.mmtp;
 
 import org.json.simple.JSONObject;
+import org.omg.PortableInterceptor.DISCARDING;
 
 public class PropertyBuilder {
     private final StringBuilder sb;
@@ -54,6 +55,17 @@ public class PropertyBuilder {
                     ((isNewDetails) ? "added" : "updated"),
                     PropertyWorker.getDetails(curr)));
         }
+        return this;
+    }
+
+    // tried to work around creating and updating comments,
+    // found out, that current-previous difference is not about the each comment,
+    // but about all artifact's comments (or submit json's)
+    PropertyBuilder appendCommentIfExists() {
+        String current = PropertyWorker.getComment(curr);
+        if ("".equals(current) || !PropertyWorker.isUpdComment(curr, prev)) return this;
+        sb.append(String.format("added/updated a comment: '%s'",
+                current));
         return this;
     }
 
