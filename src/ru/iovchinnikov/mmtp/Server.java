@@ -18,39 +18,19 @@ import java.util.Map;
 // TODO При назначении таска на пользователя: Пользователь <имя пользователя> назначил <имя пользователя> на задачу <ссылка>
 // TODO При изменении описания задачи: Пользователь <имя пользователя> изменил в задаче <ссылка> описание <новое описание задачи>
 // TODO Добавление/удаление файла к задаче: Пользователь <имя пользователя> добавил/удалил в задаче <ссылка> файл <название файла>
-
+// TODO Изменение Remaining effort: Пользователь <Имя пользователя> в задаче <ссылка на задачу> изменил Remaining effort <>
+// TODO Пользователь <имя пользователя> изменил в задаче <ссылка> статус на <статус>.
+// TODO Прикреплен документ <ссылка>.
+// TODO Добавлен комментарий: "<текст>".
 public class Server {
 
-//    private static final String HOST = "http://1.0.0.137:8088/hooks/et9og89o93f9truwybccumyrkc"; // test channel endpoint
-    private static final String HOST = "http://1.0.0.137:8088/hooks/ojxdgbsxajbcigxs1b3abpzdmh";
+    private static final String HOST = "http://1.0.0.137:8088/hooks/et9og89o93f9truwybccumyrkc"; // test channel endpoint
+//    private static final String HOST = "http://1.0.0.137:8088/hooks/ojxdgbsxajbcigxs1b3abpzdmh";
     private static final int PORT = 12345;
-    private static final String ENDPOINT = "/cmec";
+    private static final String ENDPOINT = "/post";
+//    private static final String ENDPOINT = "/cmec";
 
-    private static final String CURRENT_VERSION = "current";
-    private static final String PREVIOUS_VERSION = "previous";
 
-    private static final String ACTION = "action";
-    private static final String CHANGES_BY = "submitted_by_details"; //(String) ((Map) currentArtifact.get(CHANGES_BY)).get("display_name")
-    private static final String CHANGES_TS = "submitted_on";
-    private static final String LAST_COMMENT = "last_comment"; //(String) ((Map) currentArtifact.get(LAST_COMMENT)).get("body")
-    private static final String ARTIFACT_VALUES = "values"; //(JSONArray) currentArtifact.get(ARTIFACT_VALUES);
-    private static final String USER_DISPLAY_NAME = "display_name";
-    private static final String USER_NAME = "username";
-
-    // artifact value indexes
-    private static final int TITLE = 0;             // (String) ((Map) values.get(TITLE)).get("value");
-    private static final int TYPE = 1;              // (String) (((Map) ((JSONArray) ((Map) values.get(TYPE)).get("values")).get(0)).get("label"));
-    private static final int ASSIGNED_TO = 2;       // (String) (((Map) ((JSONArray) ((Map) values.get(ASSIGNED_TO)).get("values")).get(0)).get("display_name"));
-    private static final int STATUS = 3;            // (String) (((Map) ((JSONArray) ((Map) values.get(STATUS)).get("values")).get(0)).get("label"));
-    private static final int LINKS = 4;
-    private static final int ARTIFACT_ID = 5;       // (String) ((Map) values.get(ARTIFACT_ID)).get("value");
-    private static final int LAST_UPDATE_TS = 6;    // (String) ((Map) values.get(LAST_UPDATE_TS)).get("value");
-    private static final int CROSS_REFS = 7;
-    private static final int SUBMITTED_TS = 8;
-    private static final int REMAINING_EFFORT = 9;
-    private static final int LAST_UPDATE_BY = 10;
-    private static final int DETAILS = 11;          // (String) ((Map) values.get(DETAILS)).get("value");
-    private static final int SUBMITTED_BY = 12;
 
     static class HandlerImpl implements HttpHandler {
         @Override
@@ -71,22 +51,15 @@ public class Server {
     private static String generateAnswer(String str) throws ParseException {
         JSONObject out = new JSONObject();
         JSONObject json = (JSONObject) new JSONParser().parse(str);
-        JSONObject currentArtifact = (JSONObject) json.get(CURRENT_VERSION);
-        JSONArray values = (JSONArray) currentArtifact.get(ARTIFACT_VALUES);
 
-        StringBuilder answer = new StringBuilder("\"Tuleap artifact update: ");
-        answer.append(String.format("\nUser '[%s](http://sv-noda.risde.ru:8585/users/%s)'",
-                ((Map) currentArtifact.get(CHANGES_BY)).get(USER_DISPLAY_NAME),
-                ((Map) currentArtifact.get(CHANGES_BY)).get(USER_NAME)));
-        answer.append(String.format(" In '[%s](http://sv-noda.risde.ru:8585/plugins/tracker/?aid=%s)'",
-                ((Map) values.get(TITLE)).get("value"),
-                ((Map) values.get(ARTIFACT_ID)).get("value")));
-        answer.append(String.format("\nWith a comment:\n'%s'",
-                ((Map) currentArtifact.get(LAST_COMMENT)).get("body")));
+        String result = new PropertyBuilder(json)
+                .newLine().appendUser()
+                .appendAction().appendCustom("d ")
+                .appendArtifactId()
+                .getResult();
 
-        answer.append("\"");
         out.put("username", "Tuleap");
-        out.put("text", answer);
+        out.put("text", result);
         return out.toString();
     }
 
