@@ -50,6 +50,7 @@ public class Server {
                 .appendAction().appendArtifactRef()
                 .newLine().appendDetailsIfChanged()
                 .newLine().appendCommentIfExists()
+                .newLine().appendAssigneeIfChanged()
                 .getResult();
 
         out.put("username", name);

@@ -1,7 +1,6 @@
 package ru.iovchinnikov.mmtp;
 
 import org.json.simple.JSONObject;
-import org.omg.PortableInterceptor.DISCARDING;
 
 public class PropertyBuilder {
     private final StringBuilder sb;
@@ -30,7 +29,7 @@ public class PropertyBuilder {
     PropertyBuilder appendUser() {
         sb.append(String.format("user: '[%s](http://sv-noda.risde.ru:8585/users/%s)' ",
                 PropertyWorker.getChangesByDisplayName(curr),
-                PropertyWorker.getChangesByName(curr)));
+                PropertyWorker.getChangedByLogin(curr)));
         return this;
     }
 
@@ -50,9 +49,13 @@ public class PropertyBuilder {
     PropertyBuilder appendDetailsIfChanged() {
         boolean isChange = PropertyWorker.isUpdDetails(curr, prev);
         if (isChange) {
+            if ("".equals(PropertyWorker.getDetails(curr))) {
+                sb.append("removed details");
+                return this;
+            }
             boolean isNewDetails = "".equals(PropertyWorker.getDetails(prev));
             sb.append(String.format("%s details: '%s'",
-                    ((isNewDetails) ? "added" : "updated"),
+                    ((isNewDetails) ? "added" : "changed"),
                     PropertyWorker.getDetails(curr)));
         }
         return this;
@@ -66,6 +69,23 @@ public class PropertyBuilder {
         if ("".equals(current) || !PropertyWorker.isUpdComment(curr, prev)) return this;
         sb.append(String.format("added/updated a comment: '%s'",
                 current));
+        return this;
+    }
+
+    PropertyBuilder appendAssigneeIfChanged() {
+
+        boolean isChange = PropertyWorker.isUpdAssignee(curr, prev);
+        if (isChange) {
+            if (PropertyWorker.getAssigneeLogin(curr) == null) {
+                sb.append("removed assignee");
+                return this;
+            }
+            boolean isNewAssignee = PropertyWorker.getAssigneeLogin(prev) == null;
+            sb.append(String.format("%s assignee: '[%s](http://sv-noda.risde.ru:8585/users/%s)'",
+                    ((isNewAssignee) ? "added" : "changed"),
+                    PropertyWorker.getAssigneeDisplayName(curr),
+                    PropertyWorker.getAssigneeLogin(curr)));
+        }
         return this;
     }
 
