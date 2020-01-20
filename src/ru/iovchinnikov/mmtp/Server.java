@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpServer;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import ru.iovchinnikov.mmtp.tracker.PropertyBuilder;
 
 import java.io.*;
 import java.net.*;
@@ -33,7 +34,9 @@ public class Server {
             BufferedReader rq = new BufferedReader(isr);
             String str = URLDecoder.decode(rq.readLine(), tuleapEncoding);
             try {
-                sendJSON(mattermostEndpoint, generateAnswer(str.substring(8)));
+                String answer = generateAnswer(str.substring(8));
+                System.out.println(answer);
+//                sendJSON(mattermostEndpoint, answer);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
